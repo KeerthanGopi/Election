@@ -1,0 +1,4 @@
+[rqlite]
+ip = localhost
+port = 4001
+
