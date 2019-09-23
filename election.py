@@ -3,7 +3,7 @@ import requests
 url_post = "http://localhost:4001/db/execute?"
 url_get = "http://localhost:4001/db/query?"
 headers = {'Content-type' : 'application/json'}
-election_data = '["CREATE TABLE ElectionName (eid INTEGER not null PRIMARY KEY, ename text, DateOfCreation text, DateOfStart Text DEFAULT ' + "'NOT STARTED'" + ')", "Drop TABLE test","CREATE TABLE CandidatesName (cid INTEGER not null, cname text, votes INTEGER DEFAULT 0, eid text, FOREIGN KEY (eid) REFERENCES ElectionName(eid))"]'
+election_data = '["CREATE TABLE ElectionName (election_id INTEGER not null PRIMARY KEY, election_name text, DateOfCreation text, DateOfStart Text DEFAULT ' + "'NOT STARTED'" + ')", "Drop TABLE test","CREATE TABLE CandidatesName (candidate_id INTEGER not null, cname text, votes INTEGER DEFAULT 0, election_id text, FOREIGN KEY (election_id) REFERENCES ElectionName(election_id))"]'
 response = requests.post(url = url_post, data = election_data,  headers = headers)
 
 while True:
@@ -32,9 +32,9 @@ while True:
                     break
 
 
-            select = {'q': 'SELECT MAX(eid) FROM ElectionName'}
+            select = {'q': 'SELECT MAX(election_id) FROM ElectionName'}
             response = requests.get(url = url_get, params = select, headers = headers)
-            eid = str(response.json()['results'][0]['values'][0][0])
+            election_id = str(response.json()['results'][0]['values'][0][0])
             while True:
                 cno = input("Enter number of candidates: ")
                 if cno.isdigit() and cno != '0':
@@ -55,16 +55,16 @@ while True:
                     print("Invalid cname")
 
 
-            candidates_data = '["INSERT INTO CandidatesName (cname, eid, cid) VALUES'
+            candidates_data = '["INSERT INTO CandidatesName (cname, election_id, candidate_id) VALUES'
 
             print(name, "is created with ")
             for i in range(0, len(cname)):
                 print(i + 1, ". ", cname[i], sep = "")
                 if i != len(cname) - 1:
-                    candidates_data += '(\\"' + cname[i] + '\\",' + eid +  ',' + str(i + 1) + '), '
+                    candidates_data += '(\\"' + cname[i] + '\\",' + election_id +  ',' + str(i + 1) + '), '
                 else:
-                    candidates_data += '(\\"' + cname[i] + '\\",' + eid + ',' + str(i + 1) + ')"]'
-            election_data = '[ "INSERT INTO ElectionName(ename, DateOfCreation) VALUES(\\"' + name +'\\", CURRENT_DATE)" ]'
+                    candidates_data += '(\\"' + cname[i] + '\\",' + election_id + ',' + str(i + 1) + ')"]'
+            election_data = '[ "INSERT INTO ElectionName(election_name, DateOfCreation) VALUES(\\"' + name +'\\", CURRENT_DATE)" ]'
             print(election_data)
             response = requests.post(url = url_post, data = election_data,  headers = headers)
             response = requests.post(url = url_post, data = candidates_data,  headers = headers)
@@ -78,17 +78,17 @@ while True:
                 print("Election Names:")
                 for i in range(0, len(einfo)):
                     print(i + 1, '. ', einfo[i][1], sep = '' )
-                eid = input("Enter id: ")
+                election_id = input("Enter id: ")
                 check = False
                 for i in range(0 ,len(einfo)):
-                    if eid == str(einfo[i][0]):
-                        select = {'q' : 'SELECT eid, cname, votes, cid FROM CandidatesName Where eid = ' + eid}
+                    if election_id == str(einfo[i][0]):
+                        select = {'q' : 'SELECT election_id, cname, votes, candidate_id FROM CandidatesName Where election_id = ' + election_id}
                         response = requests.get(url = url_get, params = select, headers = headers)
                         cinfo = response.json()['results'][0]['values']
                         check = True
                         break
-                    elif eid == 'a' and id1 == '3':
-                        select = {'q' : 'SELECT eid, cname, votes, cid FROM CandidatesName '}
+                    elif election_id == 'a' and id1 == '3':
+                        select = {'q' : 'SELECT election_id, cname, votes, candidate_id FROM CandidatesName '}
                         response = requests.get(url = url_get, params = select, headers = headers)
                         cinfo = response.json()['results'][0]['values']
                         check = True
@@ -99,11 +99,11 @@ while True:
                 else:
                     break
             if id1 == '3':
-                if eid != 'a':
+                if election_id != 'a':
                     print()
-                    print("Election Name:", einfo[int(eid) - 1][1])
-                    print("Date Of Creation:", einfo[int(eid) - 1][2])
-                    print("Date Of Election Start:", einfo[int(eid) - 1][3])
+                    print("Election Name:", einfo[int(election_id) - 1][1])
+                    print("Date Of Creation:", einfo[int(election_id) - 1][2])
+                    print("Date Of Election Start:", einfo[int(election_id) - 1][3])
                     print('Candidate Names: ')
                     for i in range(0, len(cinfo)):
                         print(i + 1, ". ", cinfo[i][1], cinfo[i][2])
@@ -137,11 +137,11 @@ while True:
                         print("Invalid id.\n")
                     else:
                         break
-                if einfo[int(eid) - 1][-1] == 'NOT STARTED':
-                    data = '[ "UPDATE ElectionName SET DateOfStart = CURRENT_DATE WHERE eid =  '+ eid + '" ]'
+                if einfo[int(election_id) - 1][-1] == 'NOT STARTED':
+                    data = '[ "UPDATE ElectionName SET DateOfStart = CURRENT_DATE WHERE election_id =  '+ election_id + '" ]'
                     response = requests.post(url = url_post, data = data,  headers = headers)
 
-                data = '[ "UPDATE CandidatesName SET votes = votes + 1 WHERE cid = ' + index + ' AND eid = ' + str(cinfo[int(index) - 1][0])+ '" ]'
+                data = '[ "UPDATE CandidatesName SET votes = votes + 1 WHERE candidate_id = ' + index + ' AND election_id = ' + str(cinfo[int(index) - 1][0])+ '" ]'
                 response = requests.post(url = url_post, data = data,  headers = headers)
                 print("Thank You For Voting")
 
@@ -155,7 +155,7 @@ while True:
     else:
         print("No Election Exists\nPlease Create Election")
         name = input("Enter Election Name: ")
-        eid = str(1)
+        election_id = str(1)
 
         while True:
             cno = input("Enter number of candidates: ")
@@ -176,14 +176,14 @@ while True:
                 count += 1
             else:
                 print("Invalid cname")
-        candidates_data = '["INSERT INTO CandidatesName (cname, eid, cid) VALUES'
+        candidates_data = '["INSERT INTO CandidatesName (cname, election_id, candidate_id) VALUES'
 
         for i in range(0, len(cname)):
             if i != len(cname) - 1:
-                candidates_data += '(\\"' + cname[i] + '\\",' + eid +  ',' + str(i + 1) + '), '
+                candidates_data += '(\\"' + cname[i] + '\\",' + election_id +  ',' + str(i + 1) + '), '
             else:
-                candidates_data += '(\\"' + cname[i] + '\\",' + eid + ',' + str(i + 1) + ')"]'
-        election_data = '[ "INSERT INTO ElectionName(ename, DateOfCreation) VALUES(\\"' + name +'\\", CURRENT_DATE)" ]'
+                candidates_data += '(\\"' + cname[i] + '\\",' + election_id + ',' + str(i + 1) + ')"]'
+        election_data = '[ "INSERT INTO ElectionName(election_name, DateOfCreation) VALUES(\\"' + name +'\\", CURRENT_DATE)" ]'
         response = requests.post(url = url_post, data = election_data,  headers = headers)
 
         response = requests.post(url = url_post, data = candidates_data,  headers = headers)

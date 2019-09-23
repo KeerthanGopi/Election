@@ -1,6 +1,7 @@
 import requests
 import configparser
 import socket
+import time
 
 class post_election_details():
     def __init__(self, config):
@@ -12,7 +13,7 @@ class post_election_details():
 
         self.headers = {'Content-type' : 'application/json'}
 
-    def post(self, command_id = 4, election_id = '0', candidate_id = 0, candidate_list = [], election_name = ''):
+    def post_after_creation(self, command_id = 4, election_id = '0', candidate_id = 0, candidate_list = [], election_name = ''):
         tables = ["ElectionName", "CandidatesName"]
         if command_id != 0 and command_id != 1:
             return "Error function does not satisfy your needs"
@@ -29,13 +30,15 @@ class post_election_details():
                         try:
                             query = '[ "INSERT INTO ' + command
                             if command_id == 0:
-                                query += "(ename, DateOfCreation) VALUES(\\\"" + election_name + "\\\", CURRENT_DATE)\""
-                            else:
+                                query += "(election_name, DateOfCreation) VALUES(\\\"" + election_name + "\\\", CURRENT_DATE)\""
+
                                 for i in range(0, len(candidate_list)):
                                     print(i + 1, ". ", candidate_list[i], sep = "")
-                                    query += '(\\ \"' + candidate_list[i] + '\\ \",' + election_id +  ',' + str(i + 1) + '), '
+                                    query += '(\\ \"' + candidate_list[i] + '\\ \",' + election_id +  ',' + str(i + 1) + ') '
+                                    if i != len(candidate_list):
+                                        query += ','
                             query += " ]"
-                            election_data = '[ "INSERT INTO ElectionName(ename, DateOfCreation) VALUES(\\"' + election_name +'\\", CURRENT_DATE)" ]'
+                            election_data = '[ "INSERT INTO ElectionName(election_name, DateOfCreation) VALUES(\\"' + election_name +'\\", CURRENT_DATE)" ]'
                             response = requests.post(url = self.url_post, headers = self.headers, data = query)
                             return response.json()
 
@@ -54,4 +57,9 @@ class post_election_details():
                 print("Server not running.")
                 print("Waiting for 5s\n")
                 time.sleep(5)
+    def post_tables():
+        election_data = '["CREATE TABLE ElectionName (election_id INTEGER not null PRIMARY KEY, election_name text, DateOfCreation text, DateOfStart Text DEFAULT ' + "'NOT STARTED'" + ')",'
+        election_data += '"CREATE TABLE CandidatesName (candidate_id INTEGER not null, cname text, votes INTEGER DEFAULT 0, election_id text, FOREIGN KEY (election_id) REFERENCES ElectionName(election_id))"]'
+        response = requests.post(url = url_post, data = election_data,  headers = headers)
+
 

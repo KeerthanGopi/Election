@@ -30,9 +30,9 @@ class get_election_details():
                     try:
                         query = 'SELECT * FROM ' + command
                         if election_id != 'a':
-                            query += ' WHERE eid = ' + election_id
+                            query += ' WHERE election_id = ' + election_id
                             if candidate_id != 0:
-                                query += ' AND cid = ' + str(candidate_id)
+                                query += ' AND candidate_id = ' + str(candidate_id)
                         select = {'q': query}
 
                         response = requests.get(url = self.url_get, params = select, headers = self.headers)
