@@ -57,9 +57,9 @@ class post_election_details():
                 print("Server not running.")
                 print("Waiting for 5s\n")
                 time.sleep(5)
-    def post_tables():
+    def create_tables(self):
         election_data = '["CREATE TABLE ElectionName (election_id INTEGER not null PRIMARY KEY, election_name text, DateOfCreation text, DateOfStart Text DEFAULT ' + "'NOT STARTED'" + ')",'
-        election_data += '"CREATE TABLE CandidatesName (candidate_id INTEGER not null, cname text, votes INTEGER DEFAULT 0, election_id text, FOREIGN KEY (election_id) REFERENCES ElectionName(election_id))"]'
-        response = requests.post(url = url_post, data = election_data,  headers = headers)
+        election_data += '"CREATE TABLE CandidatesName (candidate_id INTEGER not null, candidate_name text, votes INTEGER DEFAULT 0, election_id text, FOREIGN KEY (election_id) REFERENCES ElectionName(election_id))"]'
+        response = requests.post(url = self.url_post, data = election_data,  headers = self.headers)
 
 

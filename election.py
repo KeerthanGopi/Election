@@ -3,7 +3,7 @@ import requests
 url_post = "http://localhost:4001/db/execute?"
 url_get = "http://localhost:4001/db/query?"
 headers = {'Content-type' : 'application/json'}
-election_data = '["CREATE TABLE ElectionName (election_id INTEGER not null PRIMARY KEY, election_name text, DateOfCreation text, DateOfStart Text DEFAULT ' + "'NOT STARTED'" + ')", "Drop TABLE test","CREATE TABLE CandidatesName (candidate_id INTEGER not null, cname text, votes INTEGER DEFAULT 0, election_id text, FOREIGN KEY (election_id) REFERENCES ElectionName(election_id))"]'
+election_data = '["CREATE TABLE ElectionName (election_id INTEGER not null PRIMARY KEY, election_name text, DateOfCreation text, DateOfStart Text DEFAULT ' + "'NOT STARTED'" + ')", "Drop TABLE test","CREATE TABLE CandidatesName (candidate_id INTEGER not null, candidate_name text, votes INTEGER DEFAULT 0, election_id text, FOREIGN KEY (election_id) REFERENCES ElectionName(election_id))"]'
 response = requests.post(url = url_post, data = election_data,  headers = headers)
 
 while True:
@@ -44,26 +44,26 @@ while True:
                     print("0 is not a valid number for candidates")
                 else:
                     print("Not a valid number")
-            cname = []
+            candidate_name = []
             count = 0
             while count < cno:
                 cnam = input("Enter candidate name: ").rstrip()
                 if cnam != " " and cnam != '':
-                    cname.append(cnam)
+                    candidate_name.append(cnam)
                     count += 1
                 else:
-                    print("Invalid cname")
+                    print("Invalid candidate_name")
 
 
-            candidates_data = '["INSERT INTO CandidatesName (cname, election_id, candidate_id) VALUES'
+            candidates_data = '["INSERT INTO CandidatesName (candidate_name, election_id, candidate_id) VALUES'
 
             print(name, "is created with ")
-            for i in range(0, len(cname)):
-                print(i + 1, ". ", cname[i], sep = "")
-                if i != len(cname) - 1:
-                    candidates_data += '(\\"' + cname[i] + '\\",' + election_id +  ',' + str(i + 1) + '), '
+            for i in range(0, len(candidate_name)):
+                print(i + 1, ". ", candidate_name[i], sep = "")
+                if i != len(candidate_name) - 1:
+                    candidates_data += '(\\"' + candidate_name[i] + '\\",' + election_id +  ',' + str(i + 1) + '), '
                 else:
-                    candidates_data += '(\\"' + cname[i] + '\\",' + election_id + ',' + str(i + 1) + ')"]'
+                    candidates_data += '(\\"' + candidate_name[i] + '\\",' + election_id + ',' + str(i + 1) + ')"]'
             election_data = '[ "INSERT INTO ElectionName(election_name, DateOfCreation) VALUES(\\"' + name +'\\", CURRENT_DATE)" ]'
             print(election_data)
             response = requests.post(url = url_post, data = election_data,  headers = headers)
@@ -82,13 +82,13 @@ while True:
                 check = False
                 for i in range(0 ,len(einfo)):
                     if election_id == str(einfo[i][0]):
-                        select = {'q' : 'SELECT election_id, cname, votes, candidate_id FROM CandidatesName Where election_id = ' + election_id}
+                        select = {'q' : 'SELECT election_id, candidate_name, votes, candidate_id FROM CandidatesName Where election_id = ' + election_id}
                         response = requests.get(url = url_get, params = select, headers = headers)
                         cinfo = response.json()['results'][0]['values']
                         check = True
                         break
                     elif election_id == 'a' and id1 == '3':
-                        select = {'q' : 'SELECT election_id, cname, votes, candidate_id FROM CandidatesName '}
+                        select = {'q' : 'SELECT election_id, candidate_name, votes, candidate_id FROM CandidatesName '}
                         response = requests.get(url = url_get, params = select, headers = headers)
                         cinfo = response.json()['results'][0]['values']
                         check = True
@@ -167,22 +167,22 @@ while True:
             else:
                 print("Not a valid number")
 
-        cname = []
+        candidate_name = []
         count = 0
         while count < cno:
             cnam = input("Enter candidate name: ").rstrip()
             if cnam != " " and cnam != '':
-                cname.append(cnam)
+                candidate_name.append(cnam)
                 count += 1
             else:
-                print("Invalid cname")
-        candidates_data = '["INSERT INTO CandidatesName (cname, election_id, candidate_id) VALUES'
+                print("Invalid candidate_name")
+        candidates_data = '["INSERT INTO CandidatesName (candidate_name, election_id, candidate_id) VALUES'
 
-        for i in range(0, len(cname)):
-            if i != len(cname) - 1:
-                candidates_data += '(\\"' + cname[i] + '\\",' + election_id +  ',' + str(i + 1) + '), '
+        for i in range(0, len(candidate_name)):
+            if i != len(candidate_name) - 1:
+                candidates_data += '(\\"' + candidate_name[i] + '\\",' + election_id +  ',' + str(i + 1) + '), '
             else:
-                candidates_data += '(\\"' + cname[i] + '\\",' + election_id + ',' + str(i + 1) + ')"]'
+                candidates_data += '(\\"' + candidate_name[i] + '\\",' + election_id + ',' + str(i + 1) + ')"]'
         election_data = '[ "INSERT INTO ElectionName(election_name, DateOfCreation) VALUES(\\"' + name +'\\", CURRENT_DATE)" ]'
         response = requests.post(url = url_post, data = election_data,  headers = headers)
 
